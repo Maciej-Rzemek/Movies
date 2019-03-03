@@ -12,9 +12,9 @@ public class ServiceGenerator {
 
     private static Retrofit retrofit = retrofitBuilder.build();
 
-    private static RecipeApi recipeApi = retrofit.create(RecipeApi.class);
+    private static MovieApi movieApi = retrofit.create(MovieApi.class);
 
-    public static RecipeApi getRecipeApi() {
-        return recipeApi;
+    public static MovieApi getMovieApi() {
+        return movieApi;
     }
 }

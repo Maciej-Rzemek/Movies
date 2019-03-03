@@ -8,7 +8,7 @@ import android.widget.ProgressBar;
 
 public abstract class BaseActivity extends AppCompatActivity {
 
-    private ProgressBar mProgressBar;
+    public ProgressBar mProgressBar;
 
     @Override
     public void setContentView(int layoutResID) {
@@ -18,10 +18,11 @@ public abstract class BaseActivity extends AppCompatActivity {
         mProgressBar = constraintLayout.findViewById(R.id.progress_bar);
 
         getLayoutInflater().inflate(layoutResID, frameLayout, true);
-        super.setContentView(layoutResID);
+        super.setContentView(constraintLayout);
     }
 
-    public void showProgressBar(boolean visibility) {
-        mProgressBar.setVisibility(visibility ? View.VISIBLE : View.INVISIBLE);
+    public void showProgressBar(boolean visible) {
+
+        mProgressBar.setVisibility(visible ? View.VISIBLE : View.INVISIBLE);
     }
 }
