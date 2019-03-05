@@ -1,15 +1,18 @@
 package com.example.movies;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
 
 import com.example.movies.models.Movie;
 import com.example.movies.requests.MovieApi;
 import com.example.movies.requests.ServiceGenerator;
-import com.example.movies.requests.responses.GetMoviesCallback;
 import com.example.movies.requests.responses.MovieResponse;
 import com.example.movies.utils.Constants;
+import com.example.movies.viewmodels.MovieListViewModel;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,22 +24,23 @@ import retrofit2.Response;
 
 public class MovieListActivity extends BaseActivity {
     private static final String TAG = "MovieListActivity";
+    private MovieListViewModel mMovieListViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_list);
 
-        findViewById(R.id.test).setOnClickListener(new View.OnClickListener() {
+        mMovieListViewModel = ViewModelProviders.of(this).get(MovieListViewModel.class);
+
+        subscribeObservers();
+    }
+
+    private void subscribeObservers() {
+        mMovieListViewModel.getMovies().observe(this, new Observer<List<Movie>>() {
             @Override
-            public void onClick(View v) {
-                testRetrofitRequest();
-                /*if(mProgressBar.getVisibility() == View.VISIBLE){
-                    showProgressBar(false);
-                }
-                else{
-                    showProgressBar(true);
-                }*/
+            public void onChanged(@Nullable List<Movie> movies) {
+
             }
         });
     }
@@ -48,7 +52,7 @@ public class MovieListActivity extends BaseActivity {
         responseCall.enqueue(new Callback<MovieResponse>() {
             @Override
             public void onResponse(Call<MovieResponse> call, Response<MovieResponse> response) {
-                Log.d(TAG, "onResponse: server response:" + response.toString());
+                Log.d(TAG, "onResponse: server response: " + response.toString());
 
                 if (response.code() == 200) {
                     List<Movie> movies = new ArrayList<>(response.body().getMovieList());
