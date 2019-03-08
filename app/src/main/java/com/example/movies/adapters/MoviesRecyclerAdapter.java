@@ -10,6 +10,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.movies.R;
 import com.example.movies.models.Movie;
+import com.example.movies.utils.Constants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,9 +34,16 @@ public class MoviesRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
         RequestOptions requestOptions = new RequestOptions().placeholder(R.drawable.ic_launcher_background);
 
+/*
         Glide.with(viewHolder.itemView.getContext())
                 .setDefaultRequestOptions(requestOptions)
                 .load(mMovies.get(i).getPosterPath())
+                .into(((MoviesViewHolder)viewHolder).image);
+*/
+
+        Glide.with(viewHolder.itemView)
+                .load(Constants.IMAGE_BASE_URL + mMovies.get(i).getPosterPath())
+                .apply(RequestOptions.placeholderOf(R.color.colorPrimary))
                 .into(((MoviesViewHolder)viewHolder).image);
 
         ((MoviesViewHolder)viewHolder).title.setText(mMovies.get(i).getOriginalTitle());
