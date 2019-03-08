@@ -15,13 +15,14 @@ public interface MovieApi {
     @GET("movie/popular")
     Call<MovieResponse> getPopularMovies(
             @Query("api_key") String key,
-            @Query("language") String language
+            @Query("language") String language,
+            @Query("page") int page
     );
 
     // SEARCH MOVIES
     @GET("search/movie")
     Call<MovieSearchResponse> getSearchedMovie(
             @Query("api_key") String key,
-            @Query("query") String language
+            @Query("query") String query
     );
 }

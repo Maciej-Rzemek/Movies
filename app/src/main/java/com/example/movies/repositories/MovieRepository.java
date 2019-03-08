@@ -28,4 +28,8 @@ public class MovieRepository {
     public LiveData<List<Movie>> getMovies() {
         return mMovieApiClient.getMovies();
     }
+
+    public void searchMoviesApi(String query, int pageNumber) {
+        mMovieApiClient.searchMoviesApi(query, pageNumber);
+    }
 }
