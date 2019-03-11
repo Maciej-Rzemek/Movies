@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.View;
 
@@ -43,13 +44,30 @@ public class MovieListActivity extends BaseActivity implements OnMovieListener {
 
         initRecyclerView();
         subscribeObservers();
-        testRetrofitRequest();
+        initSearchView();
     }
 
     private void initRecyclerView() {
         mAdapter = new MoviesRecyclerAdapter(this);
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+    }
+
+    private void initSearchView() {
+        final SearchView searchView = findViewById(R.id.search_view);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                mAdapter.displayLoading();
+                mMovieListViewModel.searchMoviesApi(query, 1);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String s) {
+                return false;
+            }
+        });
     }
 
     private void subscribeObservers() {
@@ -65,14 +83,6 @@ public class MovieListActivity extends BaseActivity implements OnMovieListener {
                 }
             }
         });
-    }
-
-    private void searchMoviesApi(String query, int pageNumber) {
-        mMovieListViewModel.searchMoviesApi(query, pageNumber);
-    }
-
-    private void testRetrofitRequest() {
-        searchMoviesApi("Star Wars", 1);
     }
 
     @Override

@@ -16,8 +16,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MoviesRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    private static final int MOVIE_TYPE = 1;
+    private static final int LOADING_TYPE = 2;
     private List<Movie> mMovies;
     private OnMovieListener mOnMovieListener;
+
 
     public MoviesRecyclerAdapter(OnMovieListener mOnMovieListener) {
         this.mOnMovieListener = mOnMovieListener;
@@ -26,28 +29,72 @@ public class MoviesRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.layout_movie_list_item, viewGroup, false);
-        return new MoviesViewHolder(view, mOnMovieListener);
+
+        View view = null;
+
+        switch (i) {
+            case MOVIE_TYPE: {
+                view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.layout_movie_list_item, viewGroup, false);
+                return new MoviesViewHolder(view, mOnMovieListener);
+            }
+            case LOADING_TYPE: {
+                view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.layout_loading_list_item, viewGroup, false);
+                return new LoadingViewHolder(view);
+            }
+            default: {
+                view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.layout_movie_list_item, viewGroup, false);
+                return new MoviesViewHolder(view, mOnMovieListener);
+            }
+        }
     }
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
-        RequestOptions requestOptions = new RequestOptions().placeholder(R.drawable.ic_launcher_background);
 
-/*
-        Glide.with(viewHolder.itemView.getContext())
-                .setDefaultRequestOptions(requestOptions)
-                .load(mMovies.get(i).getPosterPath())
-                .into(((MoviesViewHolder)viewHolder).image);
-*/
+        int itemViewType = getItemViewType(i);
+        if (itemViewType == MOVIE_TYPE) {
 
-        Glide.with(viewHolder.itemView)
-                .load(Constants.IMAGE_BASE_URL + mMovies.get(i).getPosterPath())
-                .apply(RequestOptions.placeholderOf(R.color.colorPrimary))
-                .into(((MoviesViewHolder)viewHolder).image);
+            RequestOptions requestOptions = new RequestOptions().placeholder(R.drawable.ic_launcher_background);
 
-        ((MoviesViewHolder)viewHolder).title.setText(mMovies.get(i).getOriginalTitle());
-        ((MoviesViewHolder)viewHolder).rating.setText(String.valueOf(mMovies.get(i).getRating()));
+            Glide.with(viewHolder.itemView)
+                    .load(Constants.IMAGE_BASE_URL + mMovies.get(i).getPosterPath())
+                    .apply(RequestOptions.placeholderOf(R.color.colorPrimary))
+                    .into(((MoviesViewHolder)viewHolder).image);
+
+            ((MoviesViewHolder)viewHolder).title.setText(mMovies.get(i).getOriginalTitle());
+            ((MoviesViewHolder)viewHolder).rating.setText(String.valueOf(mMovies.get(i).getRating()));
+        }
+
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if (mMovies.get(position).getOriginalTitle().equals("LOADING...")) {
+            return LOADING_TYPE;
+        } else {
+            return MOVIE_TYPE;
+        }
+    }
+
+    public void displayLoading() {
+        if (!isLoading()) {
+            Movie movie = new Movie();
+            movie.setOriginalTitle("LOADING...");
+            List<Movie> loadingList = new ArrayList<>();
+            loadingList.add(movie);
+            mMovies = loadingList;
+            notifyDataSetChanged();
+        }
+    }
+
+    private boolean isLoading() {
+        if (mMovies != null) {
+            if (mMovies.size() > 0) {
+                if (mMovies.get(mMovies.size() - 1).getOriginalTitle().equals("LOADING..."))
+                    return true;
+            }
+        }
+        return false;
     }
 
     @Override

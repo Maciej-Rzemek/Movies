@@ -1,7 +1,7 @@
 package com.example.movies.repositories;
 
 import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
+
 
 import com.example.movies.models.Movie;
 import com.example.movies.requests.MovieApiClient;
