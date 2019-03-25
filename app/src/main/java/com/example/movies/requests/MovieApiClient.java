@@ -5,7 +5,9 @@ import android.arch.lifecycle.MutableLiveData;
 import android.util.Log;
 
 import com.example.movies.AppExecutors;
+import com.example.movies.BuildConfig;
 import com.example.movies.models.Movie;
+import com.example.movies.requests.responses.MovieResponse;
 import com.example.movies.requests.responses.MovieSearchResponse;
 import com.example.movies.utils.Constants;
 
@@ -16,14 +18,20 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import retrofit2.Call;
+import retrofit2.Callback;
 import retrofit2.Response;
 
 import static android.content.ContentValues.TAG;
+import static com.example.movies.utils.Constants.LANGUAGE;
 import static com.example.movies.utils.Constants.NETWORK_TIMEOUT;
 
 public class MovieApiClient {
+    public static final String POPULAR = "popular";
+    public static final String TOP_RATED = "top_rated";
+    public static final String UPCOMING = "upcoming";
 
     private static MovieApiClient instance;
+    private static MovieApi api;
     private MutableLiveData<List<Movie>> mMovies;
     private RetrieveMoviesRunnable mRetrieveMoviesRunnable;
 
@@ -100,11 +108,16 @@ public class MovieApiClient {
                 mMovies.postValue(null);
             }
 
+
         }
 
         private Call<MovieSearchResponse> getMovies(String query) {
             return ServiceGenerator.getMovieApi().getSearchedMovie(Constants.API_KEY, query);
         }
+
+
+
+
 
         private void cancelRequest() {
             Log.d(TAG, "cancelRequest: canceling search request" );

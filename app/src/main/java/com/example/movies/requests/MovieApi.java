@@ -19,6 +19,22 @@ public interface MovieApi {
             @Query("page") int page
     );
 
+    // GET TOP RATED MOVIES
+    @GET("movie/top_rated")
+    Call<MovieResponse> getTopRatedMovies(
+            @Query("api_key") String apiKey,
+            @Query("language") String language,
+            @Query("page") int page
+    );
+
+    // GET UPCOMING MOVIES
+    @GET("movie/upcoming")
+    Call<MovieResponse> getUpcomingMovies(
+            @Query("api_key") String apiKey,
+            @Query("language") String language,
+            @Query("page") int page
+    );
+
     // SEARCH MOVIES
     @GET("search/movie")
     Call<MovieSearchResponse> getSearchedMovie(
