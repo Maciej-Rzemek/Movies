@@ -40,4 +40,14 @@ public class MovieSearchResponse {
     public List<Movie> getResults() {
         return results;
     }
+
+    @Override
+    public String toString() {
+        return "MovieSearchResponse{" +
+                "page=" + page +
+                ", total_results=" + total_results +
+                ", total_pages=" + total_pages +
+                ", results=" + results +
+                '}';
+    }
 }

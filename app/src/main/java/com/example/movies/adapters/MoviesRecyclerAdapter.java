@@ -72,6 +72,8 @@ public class MoviesRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     public int getItemViewType(int position) {
         if (mMovies.get(position).getOriginalTitle().equals("LOADING...")) {
             return LOADING_TYPE;
+        } else if (position == mMovies.size() - 1 && position != 0) {
+            return LOADING_TYPE;
         } else {
             return MOVIE_TYPE;
         }
@@ -119,5 +121,14 @@ public class MoviesRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     public void appendMovies(List<Movie> moviesToAppend) {
         mMovies.addAll(moviesToAppend);
         notifyDataSetChanged();
+    }
+
+    public Movie getSelectedMovie(int position) {
+        if (mMovies != null) {
+            if(mMovies.size() > 0) {
+                return mMovies.get(position);
+            }
+        }
+        return null;
     }
 }

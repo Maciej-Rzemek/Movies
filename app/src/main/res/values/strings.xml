@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">Search</string>
+    <string name="app_name">MoviesApp</string>
+    <string name="actionbar_name">Search</string>
 </resources>

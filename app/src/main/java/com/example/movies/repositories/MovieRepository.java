@@ -41,13 +41,11 @@ public class MovieRepository {
 
     private MovieRepository() {
         mMovieApiClient = MovieApiClient.getInstance();
-
     }
 
     public LiveData<List<Movie>> getMovies() {
         return mMovieApiClient.getMovies();
     }
-
 
     public void searchMoviesApi(String query, int pageNumber) {
         if (pageNumber == 0) {
@@ -62,43 +60,4 @@ public class MovieRepository {
         searchMoviesApi(mQuery, mPageNumber + 1);
     }
 
-    public void getMovies(int page, String sortBy, final OnGetMoviesCallback callback) {
-        Callback<MovieResponse> call = new Callback<MovieResponse>() {
-
-            @Override
-            public void onResponse(Call<MovieResponse> call, Response<MovieResponse> response) {
-                if (response.isSuccessful()) {
-                    MovieResponse moviesResponse = response.body();
-                    if (moviesResponse != null && moviesResponse.getMovieList() != null) {
-                        callback.onSuccess(moviesResponse.getPage(), moviesResponse.getMovieList());
-                    } else {
-                        callback.onError();
-                    }
-                } else {
-                    callback.onError();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<MovieResponse> call, Throwable t) {
-                callback.onError();
-            }
-        };
-
-        switch (sortBy) {
-            case TOP_RATED:
-                api.getTopRatedMovies(Constants.API_KEY, LANGUAGE, page)
-                        .enqueue(call);
-                break;
-            case UPCOMING:
-                api.getUpcomingMovies(Constants.API_KEY, LANGUAGE, page)
-                        .enqueue(call);
-                break;
-            case POPULAR:
-            default:
-                api.getPopularMovies(Constants.API_KEY, LANGUAGE, page)
-                        .enqueue(call);
-                break;
-        }
-    }
 }

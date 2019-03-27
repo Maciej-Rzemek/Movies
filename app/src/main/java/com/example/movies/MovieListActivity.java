@@ -3,6 +3,7 @@ package com.example.movies;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -51,7 +52,7 @@ public class MovieListActivity extends BaseActivity implements OnMovieListener {
     private MoviesRecyclerAdapter mAdapter;
     private MutableLiveData<List<Movie>> mMovies;
     private boolean isFetchingMovies;
-
+    private List<Movie> moviesList;
     OnMovieListener mOnMovieListener;
     MovieRepository mMovieRepository;
     MovieApi api;
@@ -78,7 +79,16 @@ public class MovieListActivity extends BaseActivity implements OnMovieListener {
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
+        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
 
+                if (!mRecyclerView.canScrollVertically(1)) {
+                    // search next page
+                    mMovieListViewModel.searchNextPage();
+                }
+            }
+        });
     }
 
     private void initSearchView() {
@@ -103,10 +113,8 @@ public class MovieListActivity extends BaseActivity implements OnMovieListener {
             @Override
             public void onChanged(@Nullable List<Movie> movies) {
                 if (movies != null) {
-                    for (Movie movie : movies) {
-                        Log.d(TAG, "onChanged: " + movie.getOriginalTitle());
-                        mAdapter.setMovies(movies);
-                    }
+                    mMovieListViewModel.setPerformingQuery(false);
+                    mAdapter.setMovies(movies);
                 }
             }
         });
@@ -159,19 +167,19 @@ public class MovieListActivity extends BaseActivity implements OnMovieListener {
 
     private void loadPopularMovies() {
         final MovieApi movieApi = ServiceGenerator.getMovieApi();
-        final Call<MovieResponse> responseCall = movieApi.getPopularMovies(Constants.API_KEY, Constants.LANGUAGE, currentPage);
-        responseCall.enqueue(new Callback<MovieResponse>() {
+        final Call<MovieSearchResponse> responseCall = movieApi.getPopularMovies(Constants.API_KEY, Constants.LANGUAGE, currentPage);
+        responseCall.enqueue(new Callback<MovieSearchResponse>() {
             @Override
-            public void onResponse(Call<MovieResponse> call, Response<MovieResponse> response) {
+            public void onResponse(Call<MovieSearchResponse> call, Response<MovieSearchResponse> response) {
                 if (response.isSuccessful())  {
-                    List<Movie> moviesList = new ArrayList<>(response.body().getMovieList());
+                    List<Movie> moviesList = new ArrayList<>(response.body().getResults());
                     mRecyclerView.setAdapter(mAdapter);
                     mAdapter.setMovies(moviesList);
                 }
             }
 
             @Override
-            public void onFailure(Call<MovieResponse> call, Throwable t) {
+            public void onFailure(Call<MovieSearchResponse> call, Throwable t) {
                 showError();
             }
         });
@@ -179,19 +187,19 @@ public class MovieListActivity extends BaseActivity implements OnMovieListener {
 
     private void loadTopRatedMovies() {
         final MovieApi movieApi = ServiceGenerator.getMovieApi();
-        final Call<MovieResponse> responseCall = movieApi.getTopRatedMovies(Constants.API_KEY, Constants.LANGUAGE, currentPage);
-        responseCall.enqueue(new Callback<MovieResponse>() {
+        final Call<MovieSearchResponse> responseCall = movieApi.getTopRatedMovies(Constants.API_KEY, Constants.LANGUAGE, currentPage);
+        responseCall.enqueue(new Callback<MovieSearchResponse>() {
             @Override
-            public void onResponse(Call<MovieResponse> call, Response<MovieResponse> response) {
+            public void onResponse(Call<MovieSearchResponse> call, Response<MovieSearchResponse> response) {
                 if (response.isSuccessful())  {
-                    List<Movie> moviesList = new ArrayList<>(response.body().getMovieList());
+                    List<Movie> moviesList = new ArrayList<>(response.body().getResults());
                     mRecyclerView.setAdapter(mAdapter);
                     mAdapter.setMovies(moviesList);
                 }
             }
 
             @Override
-            public void onFailure(Call<MovieResponse> call, Throwable t) {
+            public void onFailure(Call<MovieSearchResponse> call, Throwable t) {
                 showError();
             }
         });
@@ -199,56 +207,29 @@ public class MovieListActivity extends BaseActivity implements OnMovieListener {
 
     private void loadUpcomingMovies() {
         final MovieApi movieApi = ServiceGenerator.getMovieApi();
-        final Call<MovieResponse> responseCall = movieApi.getUpcomingMovies(Constants.API_KEY, Constants.LANGUAGE, currentPage);
-        responseCall.enqueue(new Callback<MovieResponse>() {
+        final Call<MovieSearchResponse> responseCall = movieApi.getUpcomingMovies(Constants.API_KEY, Constants.LANGUAGE, currentPage);
+        responseCall.enqueue(new Callback<MovieSearchResponse>() {
             @Override
-            public void onResponse(Call<MovieResponse> call, Response<MovieResponse> response) {
+            public void onResponse(Call<MovieSearchResponse> call, Response<MovieSearchResponse> response) {
                 if (response.isSuccessful())  {
-                    List<Movie> moviesList = new ArrayList<>(response.body().getMovieList());
+                    List<Movie> moviesList = new ArrayList<>(response.body().getResults());
                     mRecyclerView.setAdapter(mAdapter);
                     mAdapter.setMovies(moviesList);
                 }
             }
 
             @Override
-            public void onFailure(Call<MovieResponse> call, Throwable t) {
+            public void onFailure(Call<MovieSearchResponse> call, Throwable t) {
                 showError();
             }
         });
     }
 
-
-
-
-    /*private void getMovies(final int page) {
-        isFetchingMovies = true;
-        mMovieRepository.getMovies(page, sortBy, new OnGetMoviesCallback() {
-            @Override
-            public void onSuccess(int page, List<Movie> movies) {
-                Log.d(TAG, "onSuccess: Current Page " + page);
-                if (mAdapter == null) {
-                    mAdapter = new MoviesRecyclerAdapter(mOnMovieListener);
-                    mRecyclerView.setAdapter(mAdapter);
-                } else {
-                    if (page == 1) {
-                        mAdapter.clearMovies();
-                    }
-                    mAdapter.appendMovies(movies);
-                }
-                currentPage = page;
-                isFetchingMovies = false;
-            }
-
-            @Override
-            public void onError() {
-                showError();
-            }
-        });
-    }*/
-
     @Override
     public void OnMovieClick(int position) {
-
+        Intent intent = new Intent(this, MovieActivity.class);
+        intent.putExtra("movie", mAdapter.getSelectedMovie(position));
+        startActivity(intent);
     }
 
     @Override
@@ -259,4 +240,7 @@ public class MovieListActivity extends BaseActivity implements OnMovieListener {
     private void showError() {
         Toast.makeText(MovieListActivity.this, "Please check your internet connection.", Toast.LENGTH_SHORT).show();
     }
+
+    // Trying to build custom pagination
+
 }

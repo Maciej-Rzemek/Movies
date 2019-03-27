@@ -11,6 +11,9 @@ public class Movie implements Parcelable {
     @SerializedName("original_title")
     @Expose
     private String originalTitle;
+    @SerializedName("id")
+    @Expose
+    private int id;
     @SerializedName("overview")
     @Expose
     private String description;
@@ -24,8 +27,9 @@ public class Movie implements Parcelable {
     @Expose
     private double rating;
 
-    public Movie(String originalTitle, String description, String releaseDate, String posterPath, double rating) {
+    public Movie(String originalTitle, int id, String description, String releaseDate, String posterPath, double rating) {
         this.originalTitle = originalTitle;
+        this.id = id;
         this.description = description;
         this.releaseDate = releaseDate;
         this.posterPath = posterPath;
@@ -37,6 +41,7 @@ public class Movie implements Parcelable {
 
     protected Movie(Parcel in) {
         originalTitle = in.readString();
+        id = in.readInt();
         description = in.readString();
         releaseDate = in.readString();
         posterPath = in.readString();
@@ -46,11 +51,13 @@ public class Movie implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(originalTitle);
+        dest.writeInt(id);
         dest.writeString(description);
         dest.writeString(releaseDate);
         dest.writeString(posterPath);
         dest.writeDouble(rating);
     }
+
 
     @Override
     public int describeContents() {
@@ -89,6 +96,14 @@ public class Movie implements Parcelable {
         return rating;
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
     public void setOriginalTitle(String originalTitle) {
         this.originalTitle = originalTitle;
     }
@@ -113,6 +128,7 @@ public class Movie implements Parcelable {
     public String toString() {
         return "Movie{" +
                 "originalTitle='" + originalTitle + '\'' +
+                ", id=" + id +
                 ", description='" + description + '\'' +
                 ", releaseDate='" + releaseDate + '\'' +
                 ", posterPath='" + posterPath + '\'' +
