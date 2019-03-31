@@ -23,12 +23,9 @@ import static com.example.movies.utils.Constants.LANGUAGE;
 
 public class MovieRepository {
     public static final String POPULAR = "popular";
-    public static final String TOP_RATED = "top_rated";
-    public static final String UPCOMING = "upcoming";
 
     private static MovieRepository instance;
     private MovieApiClient mMovieApiClient;
-    private MovieApi api;
     private String mQuery;
     private int mPageNumber;
 
@@ -45,6 +42,14 @@ public class MovieRepository {
 
     public LiveData<List<Movie>> getMovies() {
         return mMovieApiClient.getMovies();
+    }
+
+    public LiveData<Movie> getMovie() {
+        return mMovieApiClient.getMovie();
+    }
+
+    public void searchMovieById(int movieId) {
+        mMovieApiClient.searchMovieById(movieId);
     }
 
     public void searchMoviesApi(String query, int pageNumber) {

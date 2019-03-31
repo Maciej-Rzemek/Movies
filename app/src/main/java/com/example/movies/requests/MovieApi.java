@@ -45,7 +45,7 @@ public interface MovieApi {
 
     // GET MOVIE
     @GET("movie/{id}")
-    Call<MovieResponse> getMovieDetails(
+    Call<Movie> getMovieDetails(
             @Path("id") int id,
             @Query("api_key") String key
     );

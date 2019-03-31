@@ -36,6 +36,7 @@ public class MovieApiClient {
     private MutableLiveData<List<Movie>> mMovies;
     private MutableLiveData<Movie> mMovie;
     private RetrieveMoviesRunnable mRetrieveMoviesRunnable;
+    private RetrieveMovieRunnable mRetrieveMovieRunnable;
 
     public static MovieApiClient getInstance() {
         if (instance == null) {
@@ -53,6 +54,10 @@ public class MovieApiClient {
         return mMovies;
     }
 
+    public LiveData<Movie> getMovie() {
+        return mMovie;
+    }
+
     public void searchMoviesApi(String query, int pageNumber) {
 
         if (mRetrieveMoviesRunnable != null) {
@@ -66,6 +71,22 @@ public class MovieApiClient {
             @Override
             public void run() {
                 // interrupting background thread if time has passed
+                handler.cancel(true);
+            }
+        }, NETWORK_TIMEOUT, TimeUnit.MILLISECONDS);
+    }
+
+    public void searchMovieById(int movieId) {
+        if (mRetrieveMovieRunnable != null) {
+            mRetrieveMoviesRunnable = null;
+        }
+
+        mRetrieveMovieRunnable = new RetrieveMovieRunnable(movieId);
+
+        final Future handler = AppExecutors.getInstance().networkIO().submit(mRetrieveMovieRunnable);
+        AppExecutors.getInstance().networkIO().schedule(new Runnable() {
+            @Override
+            public void run() {
                 handler.cancel(true);
             }
         }, NETWORK_TIMEOUT, TimeUnit.MILLISECONDS);
@@ -118,55 +139,56 @@ public class MovieApiClient {
 
         private void cancelRequest() {
             Log.d(TAG, "cancelRequest: canceling search request");
+            if (mRetrieveMoviesRunnable != null) {
+                mRetrieveMoviesRunnable.cancelRequest();
+            }
         }
     }
 
     private class RetrieveMovieRunnable implements Runnable {
 
-        private int movieId;
+        private int id;
         boolean cancelRequest;
 
-        public RetrieveMovieRunnable(int movieId) {
-            this.movieId = movieId;
+        public RetrieveMovieRunnable(int id) {
+            this.id = id;
+            cancelRequest = false;
         }
 
         @Override
         public void run() {
             try {
-                Response response = getMovie(movieId).execute();
+                Response response = getMovie(id).execute();
                 if(cancelRequest) {
                     return;
                 }
                 if (response.code() == 200) {
-                    Movie movie = ((MovieResponse)response.body().getMovie());
-                    if(pageNumber == 1) {
-                        mMovies.postValue(list);
-                    }
-                    else {
-                        List<Movie> currentMovies = mMovies.getValue();
-                        currentMovies.addAll(list);
-                        mMovies.postValue(currentMovies);
-                    }
+                    Movie movie = ((Movie)response.body());
+                    mMovie.postValue(movie);
                 }
                 else {
                     String error = response.errorBody().string();
                     Log.d(TAG, "run: " + error);
-                    mMovies.postValue(null);
+                    mMovie.postValue(null);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
-                mMovies.postValue(null);
+                mMovie.postValue(null);
             }
-
-
         }
 
-        private Call<MovieResponse> getMovie(int movieId) {
+        private Call<Movie> getMovie(int movieId) {
             return ServiceGenerator.getMovieApi().getMovieDetails(movieId, Constants.API_KEY);
         }
 
         private void cancelRequest() {
             Log.d(TAG, "cancelRequest: canceling search request" );
+            if (mRetrieveMoviesRunnable != null) {
+                mRetrieveMoviesRunnable.cancelRequest();
+            }
+            if (mRetrieveMovieRunnable != null) {
+                mRetrieveMovieRunnable.cancelRequest();
+            }
         }
     }
 }

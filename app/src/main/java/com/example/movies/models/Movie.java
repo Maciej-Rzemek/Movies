@@ -26,14 +26,20 @@ public class Movie implements Parcelable {
     @SerializedName("vote_average")
     @Expose
     private double rating;
+    @SerializedName("backdrop_path")
+    @Expose
+    private String backdrop;
 
-    public Movie(String originalTitle, int id, String description, String releaseDate, String posterPath, double rating) {
+
+
+    public Movie(String originalTitle, int id, String description, String releaseDate, String posterPath, double rating, String backdrop) {
         this.originalTitle = originalTitle;
         this.id = id;
         this.description = description;
         this.releaseDate = releaseDate;
         this.posterPath = posterPath;
         this.rating = rating;
+        this.backdrop = backdrop;
     }
 
     public Movie() {
@@ -100,6 +106,14 @@ public class Movie implements Parcelable {
         return id;
     }
 
+    public String getBackdrop() {
+        return backdrop;
+    }
+
+    public void setBackdrop(String backdrop) {
+        this.backdrop = backdrop;
+    }
+
     public void setId(int id) {
         this.id = id;
     }
@@ -132,7 +146,8 @@ public class Movie implements Parcelable {
                 ", description='" + description + '\'' +
                 ", releaseDate='" + releaseDate + '\'' +
                 ", posterPath='" + posterPath + '\'' +
-                ", rating=" + rating +
+                ", rating=" + rating + '\'' +
+                ", backdrop=" + backdrop + '\'' +
                 '}';
     }
 }
