@@ -9,6 +9,8 @@ import com.example.movies.repositories.MovieRepository;
 public class MovieViewModel extends ViewModel {
 
     private MovieRepository mMovieRepository;
+    private int movieId;
+
 
     public MovieViewModel() {
         mMovieRepository = MovieRepository.getInstance();
@@ -19,6 +21,11 @@ public class MovieViewModel extends ViewModel {
     }
 
     public void searchMovieById(int movieId) {
+        this.movieId = movieId;
         mMovieRepository.searchMovieById(movieId);
+    }
+
+    public int getMovieId() {
+        return movieId;
     }
 }

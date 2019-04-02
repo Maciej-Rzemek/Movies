@@ -39,6 +39,7 @@ public class MovieActivity extends BaseActivity {
 
         mMovieViewModel = ViewModelProviders.of(this).get(MovieViewModel.class);
 
+        showProgressBar(true);
         subscribeObservers();
         getIncomingIntent();
     }
@@ -56,7 +57,9 @@ public class MovieActivity extends BaseActivity {
             @Override
             public void onChanged(@Nullable Movie movie) {
                 if (movie != null) {
-                    setMovieProperties(movie);
+                    if (movie.getId() == mMovieViewModel.getMovieId()) {
+                        setMovieProperties(movie);
+                    }
                 }
             }
         });
@@ -75,5 +78,6 @@ public class MovieActivity extends BaseActivity {
             rankTextview.setText(String.valueOf(movie.getRating()) + "/10");
             releaseDateTextView.setText(movie.getReleaseDate());
         }
+        showProgressBar(false);
     }
 }
