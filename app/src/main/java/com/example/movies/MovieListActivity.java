@@ -1,5 +1,6 @@
 package com.example.movies;
 
+import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
@@ -38,9 +39,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
-import static com.example.movies.requests.MovieApiClient.POPULAR;
-import static com.example.movies.requests.MovieApiClient.TOP_RATED;
-import static com.example.movies.requests.MovieApiClient.UPCOMING;
+
 import static com.example.movies.utils.Constants.LANGUAGE;
 
 
@@ -50,7 +49,7 @@ public class MovieListActivity extends BaseActivity implements OnMovieListener {
     private String sortBy = MovieRepository.POPULAR;
     private RecyclerView mRecyclerView;
     private MoviesRecyclerAdapter mAdapter;
-    private MutableLiveData<List<Movie>> mMovies;
+    private LiveData<List<Movie>> mMovies;
     private boolean isFetchingMovies;
     private List<Movie> moviesList;
     OnMovieListener mOnMovieListener;
@@ -82,7 +81,6 @@ public class MovieListActivity extends BaseActivity implements OnMovieListener {
         mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-
                 if (!mRecyclerView.canScrollVertically(1)) {
                     // search next page
                     mMovieListViewModel.searchNextPage();
@@ -113,8 +111,12 @@ public class MovieListActivity extends BaseActivity implements OnMovieListener {
             @Override
             public void onChanged(@Nullable List<Movie> movies) {
                 if (movies != null) {
-                    mMovieListViewModel.setPerformingQuery(false);
-                    mAdapter.setMovies(movies);
+                    if(mMovieListViewModel.isViewingMovies()) {
+                        mMovieListViewModel.setPerformingQuery(false);
+                        mAdapter.setMovies(movies);
+                        Log.d(TAG, "onChanged: I took searched movies from subscribeObservers()");
+
+                    }
                 }
             }
         });
@@ -147,13 +149,13 @@ public class MovieListActivity extends BaseActivity implements OnMovieListener {
 
                 switch (item.getItemId()) {
                     case R.id.popular:
-                        loadPopularMovies();
+                        mMovieListViewModel.searchPopularMoviesApi(1);
                         return true;
                     case R.id.top_rated:
-                        loadTopRatedMovies();
+                        mMovieListViewModel.searchTopRatedMovies(1);
                         return true;
                     case R.id.upcoming:
-                        loadUpcomingMovies();
+                        mMovieListViewModel.searchUpcomingMoviesApi(1);
                         return true;
                     default:
                         return false;
@@ -165,7 +167,7 @@ public class MovieListActivity extends BaseActivity implements OnMovieListener {
         sortMenu.show();
     }
 
-    private void loadPopularMovies() {
+    /*private void loadPopularMovies() {
         final MovieApi movieApi = ServiceGenerator.getMovieApi();
         final Call<MovieSearchResponse> responseCall = movieApi.getPopularMovies(Constants.API_KEY, Constants.LANGUAGE, currentPage);
         responseCall.enqueue(new Callback<MovieSearchResponse>() {
@@ -223,7 +225,7 @@ public class MovieListActivity extends BaseActivity implements OnMovieListener {
                 showError();
             }
         });
-    }
+    }*/
 
     @Override
     public void OnMovieClick(int position) {
@@ -237,10 +239,15 @@ public class MovieListActivity extends BaseActivity implements OnMovieListener {
 
     }
 
+    @Override
+    public void onBackPressed() {
+        if (mMovieListViewModel.onBackedPressed()) {
+            super.onBackPressed();
+        }
+    }
+
     private void showError() {
         Toast.makeText(MovieListActivity.this, "Please check your internet connection.", Toast.LENGTH_SHORT).show();
     }
-
-    // Trying to build custom pagination
 
 }

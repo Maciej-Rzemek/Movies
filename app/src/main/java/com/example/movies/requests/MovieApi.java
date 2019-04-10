@@ -15,7 +15,6 @@ public interface MovieApi {
     @GET("movie/popular")
     Call<MovieSearchResponse> getPopularMovies(
             @Query("api_key") String key,
-            @Query("language") String language,
             @Query("page") int page
     );
 
@@ -23,7 +22,6 @@ public interface MovieApi {
     @GET("movie/top_rated")
     Call<MovieSearchResponse> getTopRatedMovies(
             @Query("api_key") String apiKey,
-            @Query("language") String language,
             @Query("page") int page
     );
 
@@ -31,7 +29,6 @@ public interface MovieApi {
     @GET("movie/upcoming")
     Call<MovieSearchResponse> getUpcomingMovies(
             @Query("api_key") String apiKey,
-            @Query("language") String language,
             @Query("page") int page
     );
 

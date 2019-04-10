@@ -7,7 +7,9 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.AppCompatImageView;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -22,6 +24,7 @@ public class MovieActivity extends BaseActivity {
     // UI Components
 
     private ImageView movieImageview;
+    private RatingBar movieRating;
     private TextView titleTextview, rankTextview, descriptionTextview, releaseDateTextView;
     private MovieViewModel mMovieViewModel;
 
@@ -33,7 +36,7 @@ public class MovieActivity extends BaseActivity {
 
         movieImageview = findViewById(R.id.movie_image);
         titleTextview = findViewById(R.id.movie_title);
-        rankTextview = findViewById(R.id.movie_rank);
+        movieRating = findViewById(R.id.movie_rank);
         descriptionTextview = findViewById(R.id.movie_description);
         releaseDateTextView = findViewById(R.id.movie_release_date);
 
@@ -75,7 +78,8 @@ public class MovieActivity extends BaseActivity {
 
             titleTextview.setText(movie.getOriginalTitle());
             descriptionTextview.setText(movie.getDescription());
-            rankTextview.setText(String.valueOf(movie.getRating()) + "/10");
+            movieRating.setVisibility(View.VISIBLE);
+            movieRating.setRating((float) (movie.getRating() / 2));
             releaseDateTextView.setText(movie.getReleaseDate());
         }
         showProgressBar(false);

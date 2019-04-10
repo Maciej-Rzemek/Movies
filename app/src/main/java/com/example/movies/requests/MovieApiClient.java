@@ -27,16 +27,16 @@ import static com.example.movies.utils.Constants.LANGUAGE;
 import static com.example.movies.utils.Constants.NETWORK_TIMEOUT;
 
 public class MovieApiClient {
-    public static final String POPULAR = "popular";
-    public static final String TOP_RATED = "top_rated";
-    public static final String UPCOMING = "upcoming";
 
     private static MovieApiClient instance;
-    private static MovieApi api;
     private MutableLiveData<List<Movie>> mMovies;
     private MutableLiveData<Movie> mMovie;
     private RetrieveMoviesRunnable mRetrieveMoviesRunnable;
     private RetrieveMovieRunnable mRetrieveMovieRunnable;
+    private RetrieveUpcomingMoviesRunnable mRetrieveUpcomingMoviesRunnable;
+    private RetrieveTopRatedMoviesRunnable mRetrieveTopRatedMoviesRunnable;
+    private RetrievePopularMoviesRunnable mRetrievePopularMoviesRunnable;
+
 
     public static MovieApiClient getInstance() {
         if (instance == null) {
@@ -58,6 +58,8 @@ public class MovieApiClient {
         return mMovie;
     }
 
+
+    // Searching movies by Query
     public void searchMoviesApi(String query, int pageNumber) {
 
         if (mRetrieveMoviesRunnable != null) {
@@ -76,11 +78,11 @@ public class MovieApiClient {
         }, NETWORK_TIMEOUT, TimeUnit.MILLISECONDS);
     }
 
+    // Searching movies by ID
     public void searchMovieById(int movieId) {
         if (mRetrieveMovieRunnable != null) {
             mRetrieveMoviesRunnable = null;
         }
-
         mRetrieveMovieRunnable = new RetrieveMovieRunnable(movieId);
 
         final Future handler = AppExecutors.getInstance().networkIO().submit(mRetrieveMovieRunnable);
@@ -92,6 +94,217 @@ public class MovieApiClient {
         }, NETWORK_TIMEOUT, TimeUnit.MILLISECONDS);
     }
 
+    // Searching POPULAR movies
+    public void searchPopularMoviesApi(int pageNumber) {
+
+        if (mRetrievePopularMoviesRunnable != null) {
+            mRetrievePopularMoviesRunnable = null;
+        }
+        mRetrievePopularMoviesRunnable = new RetrievePopularMoviesRunnable(pageNumber);
+
+        final Future handler = AppExecutors.getInstance().networkIO().submit(mRetrievePopularMoviesRunnable);
+
+        AppExecutors.getInstance().networkIO().schedule(new Runnable() {
+            @Override
+            public void run() {
+                // interrupting background thread if time has passed
+                handler.cancel(true);
+            }
+        }, NETWORK_TIMEOUT, TimeUnit.MILLISECONDS);
+    }
+
+    // Searching Top Rated movies
+    public void searchTopRatedMoviesApi(int pageNumber) {
+
+        if (mRetrieveTopRatedMoviesRunnable != null) {
+            mRetrieveTopRatedMoviesRunnable = null;
+        }
+        mRetrieveTopRatedMoviesRunnable = new RetrieveTopRatedMoviesRunnable(pageNumber);
+
+        final Future handler = AppExecutors.getInstance().networkIO().submit(mRetrieveTopRatedMoviesRunnable);
+
+        AppExecutors.getInstance().networkIO().schedule(new Runnable() {
+            @Override
+            public void run() {
+                // interrupting background thread if time has passed
+                handler.cancel(true);
+            }
+        }, NETWORK_TIMEOUT, TimeUnit.MILLISECONDS);
+    }
+
+    // Searching Upcoming movies
+    public void searchUpcomingMoviesApi(int pageNumber) {
+
+        if (mRetrieveUpcomingMoviesRunnable != null) {
+            mRetrieveUpcomingMoviesRunnable = null;
+        }
+        mRetrieveUpcomingMoviesRunnable = new RetrieveUpcomingMoviesRunnable(pageNumber);
+
+        final Future handler = AppExecutors.getInstance().networkIO().submit(mRetrieveUpcomingMoviesRunnable);
+
+        AppExecutors.getInstance().networkIO().schedule(new Runnable() {
+            @Override
+            public void run() {
+                // interrupting background thread if time has passed
+                handler.cancel(true);
+            }
+        }, NETWORK_TIMEOUT, TimeUnit.MILLISECONDS);
+    }
+
+    // Retrieve list of Top Rated movies
+    private class RetrieveTopRatedMoviesRunnable implements Runnable {
+
+        private int pageNumber;
+        boolean cancelRequest;
+
+        public RetrieveTopRatedMoviesRunnable(int pageNumber) {
+            this.pageNumber = pageNumber;
+            cancelRequest = false;
+        }
+
+        @Override
+        public void run() {
+            try {
+                Response response = getMovies(pageNumber).execute();
+                if (cancelRequest) {
+                    return;
+                }
+                if (response.code() == 200) {
+                    List<Movie> list = new ArrayList<>(((MovieSearchResponse) response.body()).getResults());
+                    if (pageNumber == 1) {
+                        mMovies.postValue(list);
+                    } else {
+                        List<Movie> currentMovies = mMovies.getValue();
+                        currentMovies.addAll(list);
+                        mMovies.postValue(currentMovies);
+                    }
+                } else {
+                    String error = response.errorBody().string();
+                    Log.d(TAG, "run: " + error);
+                    mMovies.postValue(null);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                mMovies.postValue(null);
+            }
+        }
+
+        private Call<MovieSearchResponse> getMovies(int pageNumber) {
+            Log.d(TAG, "getMovies: I took movies from the MovieApi");
+            return ServiceGenerator.getMovieApi().getTopRatedMovies(Constants.API_KEY, pageNumber);
+        }
+
+        private void cancelRequest() {
+            Log.d(TAG, "cancelRequest: canceling search request");
+            if (mRetrieveMoviesRunnable != null) {
+                mRetrieveMoviesRunnable.cancelRequest();
+            }
+        }
+    }
+
+    // Retrieve Upcoming Movies
+    private class RetrieveUpcomingMoviesRunnable implements Runnable {
+
+        private int pageNumber;
+        boolean cancelRequest;
+
+        public RetrieveUpcomingMoviesRunnable(int pageNumber) {
+            this.pageNumber = pageNumber;
+            cancelRequest = false;
+        }
+
+        @Override
+        public void run() {
+            try {
+                Response response = getMovies(pageNumber).execute();
+                if (cancelRequest) {
+                    return;
+                }
+                if (response.code() == 200) {
+                    List<Movie> list = new ArrayList<>(((MovieSearchResponse) response.body()).getResults());
+                    if (pageNumber == 1) {
+                        mMovies.postValue(list);
+                    } else {
+                        List<Movie> currentMovies = mMovies.getValue();
+                        currentMovies.addAll(list);
+                        mMovies.postValue(currentMovies);
+                    }
+                } else {
+                    String error = response.errorBody().string();
+                    Log.d(TAG, "run: " + error);
+                    mMovies.postValue(null);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                mMovies.postValue(null);
+            }
+        }
+
+        private Call<MovieSearchResponse> getMovies(int pageNumber) {
+            Log.d(TAG, "getMovies: I took movies from the MovieApi");
+            return ServiceGenerator.getMovieApi().getUpcomingMovies(Constants.API_KEY, pageNumber);
+        }
+
+        private void cancelRequest() {
+            Log.d(TAG, "cancelRequest: canceling search request");
+            if (mRetrieveMoviesRunnable != null) {
+                mRetrieveMoviesRunnable.cancelRequest();
+            }
+        }
+    }
+
+    // Retrieve list of Popular movies
+    private class RetrievePopularMoviesRunnable implements Runnable {
+
+        private int pageNumber;
+        boolean cancelRequest;
+
+        public RetrievePopularMoviesRunnable(int pageNumber) {
+            this.pageNumber = pageNumber;
+            cancelRequest = false;
+        }
+
+        @Override
+        public void run() {
+            try {
+                Response response = getMovies(pageNumber).execute();
+                if (cancelRequest) {
+                    return;
+                }
+                if (response.code() == 200) {
+                    List<Movie> list = new ArrayList<>(((MovieSearchResponse) response.body()).getResults());
+                    if (pageNumber == 1) {
+                        mMovies.postValue(list);
+                    } else {
+                        List<Movie> currentMovies = mMovies.getValue();
+                        currentMovies.addAll(list);
+                        mMovies.postValue(currentMovies);
+                    }
+                } else {
+                    String error = response.errorBody().string();
+                    Log.d(TAG, "run: " + error);
+                    mMovies.postValue(null);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                mMovies.postValue(null);
+            }
+        }
+
+        private Call<MovieSearchResponse> getMovies(int pageNumber) {
+            Log.d(TAG, "getMovies: I took movies from the MovieApi");
+            return ServiceGenerator.getMovieApi().getPopularMovies(Constants.API_KEY, pageNumber);
+        }
+
+        private void cancelRequest() {
+            Log.d(TAG, "cancelRequest: canceling search request");
+            if (mRetrieveMoviesRunnable != null) {
+                mRetrieveMoviesRunnable.cancelRequest();
+            }
+        }
+    }
+
+    // Retrieve list of searched movies
     private class RetrieveMoviesRunnable implements Runnable {
 
         private String query;
@@ -145,6 +358,7 @@ public class MovieApiClient {
         }
     }
 
+    // Single Movie Retrieve
     private class RetrieveMovieRunnable implements Runnable {
 
         private int id;

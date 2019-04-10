@@ -1,25 +1,13 @@
 package com.example.movies.repositories;
 
 import android.arch.lifecycle.LiveData;
-
+import android.util.Log;
 
 import com.example.movies.models.Movie;
-import com.example.movies.requests.MovieApi;
 import com.example.movies.requests.MovieApiClient;
-import com.example.movies.requests.OnGetMoviesCallback;
-import com.example.movies.requests.responses.MovieResponse;
-import com.example.movies.utils.Constants;
-
 import java.util.List;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
-import static com.example.movies.requests.MovieApiClient.POPULAR;
-import static com.example.movies.requests.MovieApiClient.TOP_RATED;
-import static com.example.movies.requests.MovieApiClient.UPCOMING;
-import static com.example.movies.utils.Constants.LANGUAGE;
+import static android.support.constraint.Constraints.TAG;
 
 public class MovieRepository {
     public static final String POPULAR = "popular";
@@ -61,8 +49,35 @@ public class MovieRepository {
         mMovieApiClient.searchMoviesApi(query, pageNumber);
     }
 
+    public void searchPopularMoviesApi(int pageNumber) {
+        if (pageNumber == 0) {
+            pageNumber = 1;
+        }
+        mPageNumber = pageNumber;
+        mMovieApiClient.searchPopularMoviesApi(pageNumber);
+    }
+
+    public void searchUpcomingMoviesApi(int pageNumber) {
+        if (pageNumber == 0) {
+            pageNumber = 1;
+        }
+        mPageNumber = pageNumber;
+        mMovieApiClient.searchUpcomingMoviesApi(pageNumber);
+    }
+
+    public void searchTopRatedMoviesApi(int pageNumber) {
+        if (pageNumber == 0) {
+            pageNumber = 1;
+        }
+        mPageNumber = pageNumber;
+        mMovieApiClient.searchTopRatedMoviesApi(pageNumber);
+    }
+
     public void searchNextPage() {
         searchMoviesApi(mQuery, mPageNumber + 1);
+        searchPopularMoviesApi(mPageNumber + 1);
+        searchTopRatedMoviesApi(mPageNumber + 1);
+        searchUpcomingMoviesApi(mPageNumber + 1);
     }
 
 }
