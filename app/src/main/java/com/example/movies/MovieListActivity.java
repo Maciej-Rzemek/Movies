@@ -1,7 +1,6 @@
 package com.example.movies;
 
 import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
@@ -21,26 +20,11 @@ import android.widget.Toast;
 import com.example.movies.adapters.MoviesRecyclerAdapter;
 import com.example.movies.adapters.OnMovieListener;
 import com.example.movies.models.Movie;
-
 import com.example.movies.repositories.MovieRepository;
 import com.example.movies.requests.MovieApi;
-import com.example.movies.requests.OnGetMoviesCallback;
-import com.example.movies.requests.ServiceGenerator;
-import com.example.movies.requests.responses.MovieResponse;
-import com.example.movies.requests.responses.MovieSearchResponse;
-import com.example.movies.utils.Constants;
 import com.example.movies.viewmodels.MovieListViewModel;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-
-
-import static com.example.movies.utils.Constants.LANGUAGE;
 
 
 public class MovieListActivity extends BaseActivity implements OnMovieListener {
@@ -49,12 +33,6 @@ public class MovieListActivity extends BaseActivity implements OnMovieListener {
     private String sortBy = MovieRepository.POPULAR;
     private RecyclerView mRecyclerView;
     private MoviesRecyclerAdapter mAdapter;
-    private LiveData<List<Movie>> mMovies;
-    private boolean isFetchingMovies;
-    private List<Movie> moviesList;
-    OnMovieListener mOnMovieListener;
-    MovieRepository mMovieRepository;
-    MovieApi api;
     private int currentPage;
 
     @Override
@@ -150,82 +128,24 @@ public class MovieListActivity extends BaseActivity implements OnMovieListener {
                 switch (item.getItemId()) {
                     case R.id.popular:
                         mMovieListViewModel.searchPopularMoviesApi(1);
+                        mAdapter.displayLoading();
                         return true;
                     case R.id.top_rated:
                         mMovieListViewModel.searchTopRatedMovies(1);
+                        mAdapter.displayLoading();
                         return true;
                     case R.id.upcoming:
                         mMovieListViewModel.searchUpcomingMoviesApi(1);
+                        mAdapter.displayLoading();
                         return true;
                     default:
                         return false;
                 }
             }
         });
-
         sortMenu.inflate(R.menu.menu_categories_sort);
         sortMenu.show();
     }
-
-    /*private void loadPopularMovies() {
-        final MovieApi movieApi = ServiceGenerator.getMovieApi();
-        final Call<MovieSearchResponse> responseCall = movieApi.getPopularMovies(Constants.API_KEY, Constants.LANGUAGE, currentPage);
-        responseCall.enqueue(new Callback<MovieSearchResponse>() {
-            @Override
-            public void onResponse(Call<MovieSearchResponse> call, Response<MovieSearchResponse> response) {
-                if (response.isSuccessful())  {
-                    List<Movie> moviesList = new ArrayList<>(response.body().getResults());
-                    mRecyclerView.setAdapter(mAdapter);
-                    mAdapter.setMovies(moviesList);
-                }
-            }
-
-            @Override
-            public void onFailure(Call<MovieSearchResponse> call, Throwable t) {
-                showError();
-            }
-        });
-    }
-
-    private void loadTopRatedMovies() {
-        final MovieApi movieApi = ServiceGenerator.getMovieApi();
-        final Call<MovieSearchResponse> responseCall = movieApi.getTopRatedMovies(Constants.API_KEY, Constants.LANGUAGE, currentPage);
-        responseCall.enqueue(new Callback<MovieSearchResponse>() {
-            @Override
-            public void onResponse(Call<MovieSearchResponse> call, Response<MovieSearchResponse> response) {
-                if (response.isSuccessful())  {
-                    List<Movie> moviesList = new ArrayList<>(response.body().getResults());
-                    mRecyclerView.setAdapter(mAdapter);
-                    mAdapter.setMovies(moviesList);
-                }
-            }
-
-            @Override
-            public void onFailure(Call<MovieSearchResponse> call, Throwable t) {
-                showError();
-            }
-        });
-    }
-
-    private void loadUpcomingMovies() {
-        final MovieApi movieApi = ServiceGenerator.getMovieApi();
-        final Call<MovieSearchResponse> responseCall = movieApi.getUpcomingMovies(Constants.API_KEY, Constants.LANGUAGE, currentPage);
-        responseCall.enqueue(new Callback<MovieSearchResponse>() {
-            @Override
-            public void onResponse(Call<MovieSearchResponse> call, Response<MovieSearchResponse> response) {
-                if (response.isSuccessful())  {
-                    List<Movie> moviesList = new ArrayList<>(response.body().getResults());
-                    mRecyclerView.setAdapter(mAdapter);
-                    mAdapter.setMovies(moviesList);
-                }
-            }
-
-            @Override
-            public void onFailure(Call<MovieSearchResponse> call, Throwable t) {
-                showError();
-            }
-        });
-    }*/
 
     @Override
     public void OnMovieClick(int position) {

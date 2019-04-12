@@ -1,13 +1,12 @@
 package com.example.movies.repositories;
 
 import android.arch.lifecycle.LiveData;
-import android.util.Log;
 
 import com.example.movies.models.Movie;
 import com.example.movies.requests.MovieApiClient;
 import java.util.List;
 
-import static android.support.constraint.Constraints.TAG;
+
 
 public class MovieRepository {
     public static final String POPULAR = "popular";

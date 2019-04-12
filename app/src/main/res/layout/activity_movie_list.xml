@@ -19,9 +19,10 @@
 
             <android.support.v7.widget.SearchView
                 android:id="@+id/search_view"
+                android:theme="@style/SearchViewStyle"
                 android:layout_width="wrap_content"
-                android:layout_height="?attr/actionBarSize"
-                app:queryHint="search...">
+                app:queryBackground="@android:color/transparent"
+                android:layout_height="?attr/actionBarSize">
 
             </android.support.v7.widget.SearchView>
 
