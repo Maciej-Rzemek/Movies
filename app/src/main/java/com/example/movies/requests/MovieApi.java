@@ -1,8 +1,8 @@
 package com.example.movies.requests;
 
 import com.example.movies.models.Movie;
-import com.example.movies.requests.responses.MovieResponse;
 import com.example.movies.requests.responses.MovieSearchResponse;
+import com.example.movies.requests.responses.TrailerResponse;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
@@ -44,6 +44,13 @@ public interface MovieApi {
     @GET("movie/{id}")
     Call<Movie> getMovieDetails(
             @Path("id") int id,
+            @Query("api_key") String key
+    );
+
+    // GET TRAILERS
+    @GET("movie/{movie_id}/videos")
+    Call<TrailerResponse> getTrailers(
+            @Path("movie_id") int id,
             @Query("api_key") String key
     );
 

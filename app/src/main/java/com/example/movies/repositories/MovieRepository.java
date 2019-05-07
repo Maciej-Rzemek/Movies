@@ -1,11 +1,14 @@
 package com.example.movies.repositories;
 
 import android.arch.lifecycle.LiveData;
+import android.util.Log;
 
 import com.example.movies.models.Movie;
+import com.example.movies.models.Trailer;
 import com.example.movies.requests.MovieApiClient;
 import java.util.List;
 
+import static android.support.constraint.Constraints.TAG;
 
 
 public class MovieRepository {
@@ -31,12 +34,20 @@ public class MovieRepository {
         return mMovieApiClient.getMovies();
     }
 
+    public LiveData<List<Trailer>> getTrailers() {
+        return mMovieApiClient.getTrailers();
+    }
+
     public LiveData<Movie> getMovie() {
         return mMovieApiClient.getMovie();
     }
 
     public void searchMovieById(int movieId) {
         mMovieApiClient.searchMovieById(movieId);
+    }
+
+    public void searchMovieTrailers(int movieId) {
+        mMovieApiClient.searchMovieTrailers(movieId);
     }
 
     public void searchMoviesApi(String query, int pageNumber) {

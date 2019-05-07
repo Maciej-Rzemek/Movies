@@ -5,11 +5,10 @@ import android.arch.lifecycle.MutableLiveData;
 import android.util.Log;
 
 import com.example.movies.AppExecutors;
-import com.example.movies.BuildConfig;
 import com.example.movies.models.Movie;
-import com.example.movies.repositories.MovieRepository;
-import com.example.movies.requests.responses.MovieResponse;
+import com.example.movies.models.Trailer;
 import com.example.movies.requests.responses.MovieSearchResponse;
+import com.example.movies.requests.responses.TrailerResponse;
 import com.example.movies.utils.Constants;
 
 import java.io.IOException;
@@ -19,11 +18,9 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import retrofit2.Call;
-import retrofit2.Callback;
 import retrofit2.Response;
 
 import static android.content.ContentValues.TAG;
-import static com.example.movies.utils.Constants.LANGUAGE;
 import static com.example.movies.utils.Constants.NETWORK_TIMEOUT;
 
 public class MovieApiClient {
@@ -31,11 +28,13 @@ public class MovieApiClient {
     private static MovieApiClient instance;
     private MutableLiveData<List<Movie>> mMovies;
     private MutableLiveData<Movie> mMovie;
+    private MutableLiveData<List<Trailer>> mTrailers;
     private RetrieveMoviesRunnable mRetrieveMoviesRunnable;
     private RetrieveMovieRunnable mRetrieveMovieRunnable;
     private RetrieveUpcomingMoviesRunnable mRetrieveUpcomingMoviesRunnable;
     private RetrieveTopRatedMoviesRunnable mRetrieveTopRatedMoviesRunnable;
     private RetrievePopularMoviesRunnable mRetrievePopularMoviesRunnable;
+    private RetrieveMoviesTrailersRunnable mRetrieveMoviesTrailersRunnable;
 
 
     public static MovieApiClient getInstance() {
@@ -48,10 +47,15 @@ public class MovieApiClient {
     private MovieApiClient() {
         mMovie = new MutableLiveData<>();
         mMovies = new MutableLiveData<>();
+        mTrailers = new MutableLiveData<>();
     }
 
     public LiveData<List<Movie>> getMovies() {
         return mMovies;
+    }
+
+    public LiveData<List<Trailer>> getTrailers() {
+        return mTrailers;
     }
 
     public LiveData<Movie> getMovie() {
@@ -78,10 +82,26 @@ public class MovieApiClient {
         }, NETWORK_TIMEOUT, TimeUnit.MILLISECONDS);
     }
 
+    // Searching movies Trailers
+    public void searchMovieTrailers(int movieId) {
+        if (mRetrieveMoviesTrailersRunnable != null) {
+            mRetrieveMoviesTrailersRunnable = null;
+        }
+        mRetrieveMoviesTrailersRunnable = new RetrieveMoviesTrailersRunnable(movieId);
+
+        final Future handler = AppExecutors.getInstance().networkIO().submit(mRetrieveMovieRunnable);
+        AppExecutors.getInstance().networkIO().schedule(new Runnable() {
+            @Override
+            public void run() {
+                handler.cancel(true);
+            }
+        }, NETWORK_TIMEOUT, TimeUnit.MILLISECONDS);
+    }
+
     // Searching movies by ID
     public void searchMovieById(int movieId) {
         if (mRetrieveMovieRunnable != null) {
-            mRetrieveMoviesRunnable = null;
+            mRetrieveMovieRunnable = null;
         }
         mRetrieveMovieRunnable = new RetrieveMovieRunnable(movieId);
 
@@ -170,7 +190,7 @@ public class MovieApiClient {
                     return;
                 }
                 if (response.code() == 200) {
-                    List<Movie> list = new ArrayList<>(((MovieSearchResponse) response.body()).getResults());
+                    List<Movie> list = new ArrayList<>(((MovieSearchResponse)response.body()).getResults());
                     if (pageNumber == 1) {
                         mMovies.postValue(list);
                     } else {
@@ -190,7 +210,7 @@ public class MovieApiClient {
         }
 
         private Call<MovieSearchResponse> getMovies(int pageNumber) {
-            Log.d(TAG, "getMovies: I took movies from the MovieApi");
+            Log.d(TAG, "getMovies: I took TopRated movies from the MovieApi");
             return ServiceGenerator.getMovieApi().getTopRatedMovies(Constants.API_KEY, pageNumber);
         }
 
@@ -378,6 +398,9 @@ public class MovieApiClient {
                 }
                 if (response.code() == 200) {
                     Movie movie = ((Movie)response.body());
+                    // TEST RETROFIT TRAILERS <- TO DELETE LATER
+                    Log.d(TAG, "getTrailers: TRAILERX" + ServiceGenerator.getMovieApi().getTrailers(id, Constants.API_KEY));
+                    Log.d(TAG, "getTrailers: TRAILERX" + ServiceGenerator.getMovieApi().getMovieDetails(id, Constants.API_KEY));
                     mMovie.postValue(movie);
                 }
                 else {
@@ -405,8 +428,69 @@ public class MovieApiClient {
             }
         }
     }
+
+    // Retrieve Movies Trailers
+    private class RetrieveMoviesTrailersRunnable implements Runnable {
+
+        private int id;
+        boolean cancelRequest;
+
+        public RetrieveMoviesTrailersRunnable(int id) {
+            this.id = id;
+            cancelRequest = false;
+        }
+
+        @Override
+        public void run() {
+            try {
+                Response response = getTrailers(id).execute();
+                if (cancelRequest) {
+                    return;
+                }
+                if (response.code() == 200) {
+                    List<Trailer> trailers = new ArrayList<>(((TrailerResponse)response.body()).getTrailers());
+                    Log.d(TAG, "runFOREST: " + trailers.get(0).getKey());
+                    mTrailers.postValue(trailers);
+                } else {
+                    String error = response.errorBody().string();
+                    Log.d(TAG, "run: " + error);
+                    mTrailers.postValue(null);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                mTrailers.postValue(null);
+            }
+        }
+
+        private Call<TrailerResponse> getTrailers(int movieId) {
+            return ServiceGenerator.getMovieApi().getTrailers(movieId, Constants.API_KEY);
+        }
+    }
 }
 
-
+/*try {
+                Response response = getMovies(query, pageNumber).execute();
+                if (cancelRequest) {
+                    return;
+                }
+                if (response.code() == 200) {
+                    List<Movie> list = new ArrayList<>(((MovieSearchResponse) response.body()).getResults());
+                    if (pageNumber == 1) {
+                        mMovies.postValue(list);
+                    } else {
+                        List<Movie> currentMovies = mMovies.getValue();
+                        currentMovies.addAll(list);
+                        mMovies.postValue(currentMovies);
+                    }
+                } else {
+                    String error = response.errorBody().string();
+                    Log.d(TAG, "run: " + error);
+                    mMovies.postValue(null);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                mMovies.postValue(null);
+            }
+        }*/
 
 

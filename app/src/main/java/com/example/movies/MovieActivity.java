@@ -9,23 +9,27 @@ import android.support.v7.widget.AppCompatImageView;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.movies.models.Movie;
+import com.example.movies.models.Trailer;
 import com.example.movies.utils.Constants;
 import com.example.movies.viewmodels.MovieViewModel;
+
+import java.util.List;
 
 public class MovieActivity extends BaseActivity {
     private static final String TAG = "MovieActivity";
 
     // UI Components
 
-    private ImageView movieImageview;
+    private ImageView movieImageview, thumbnailImageview;
     private RatingBar movieRating;
-    private TextView titleTextview, rankTextview, descriptionTextview, releaseDateTextView;
+    private TextView titleTextview, descriptionTextview, releaseDateTextView;
     private MovieViewModel mMovieViewModel;
 
 
@@ -39,6 +43,7 @@ public class MovieActivity extends BaseActivity {
         movieRating = findViewById(R.id.movie_rank);
         descriptionTextview = findViewById(R.id.movie_description);
         releaseDateTextView = findViewById(R.id.movie_release_date);
+        thumbnailImageview = findViewById(R.id.trailer_imageView);
 
         mMovieViewModel = ViewModelProviders.of(this).get(MovieViewModel.class);
 
@@ -62,10 +67,27 @@ public class MovieActivity extends BaseActivity {
                 if (movie != null) {
                     if (movie.getId() == mMovieViewModel.getMovieId()) {
                         setMovieProperties(movie);
+                        Log.d(TAG, "onChanged: TRAILER" + movie.getOriginalTitle());
+                        Log.d(TAG, "onChanged: TRAILER" + movie.getPosterPath());
                     }
                 }
             }
         });
+
+        mMovieViewModel.getTrailers().observe(this, new Observer<List<Trailer>>() {
+            @Override
+            public void onChanged(@Nullable List<Trailer> trailers) {
+                if (trailers != null) {
+
+                    for (Trailer trailer : trailers) {
+                        trailer.getKey();
+                        Log.d(TAG, "onChanged: TRAILER" + trailer.getKey());
+                        Log.d(TAG, "onChanged: TRAILER" + trailers.get(550).getKey());
+                    }
+                }
+            }
+        });
+
     }
 
     private void setMovieProperties(Movie movie) {

@@ -62,7 +62,7 @@ public class MoviesRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                     .into(((MoviesViewHolder)viewHolder).image);
 
             ((MoviesViewHolder)viewHolder).title.setText(mMovies.get(i).getOriginalTitle());
-            ((MoviesViewHolder)viewHolder).rating.setText(String.valueOf(mMovies.get(i).getRating()));
+            ((MoviesViewHolder)viewHolder).rank.setText(String.valueOf(mMovies.get(i).getRating()));
         }
 
 
@@ -110,16 +110,6 @@ public class MoviesRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     public void setMovies(List<Movie> movies) {
         mMovies = movies;
-        notifyDataSetChanged();
-    }
-
-    public void clearMovies() {
-        mMovies.clear();
-        notifyDataSetChanged();
-    }
-
-    public void appendMovies(List<Movie> moviesToAppend) {
-        mMovies.addAll(moviesToAppend);
         notifyDataSetChanged();
     }
 

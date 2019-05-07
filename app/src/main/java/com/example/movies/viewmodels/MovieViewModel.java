@@ -4,7 +4,10 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModel;
 
 import com.example.movies.models.Movie;
+import com.example.movies.models.Trailer;
 import com.example.movies.repositories.MovieRepository;
+
+import java.util.List;
 
 public class MovieViewModel extends ViewModel {
 
@@ -20,12 +23,23 @@ public class MovieViewModel extends ViewModel {
         return mMovieRepository.getMovie();
     }
 
+    public LiveData<List<Trailer>> getTrailers() {
+        return mMovieRepository.getTrailers();
+    }
+
     public void searchMovieById(int movieId) {
         this.movieId = movieId;
         mMovieRepository.searchMovieById(movieId);
     }
 
+    public void searchMovieTrailers(int movieId) {
+        this.movieId = movieId;
+        mMovieRepository.searchMovieTrailers(movieId);
+
+    }
+
     public int getMovieId() {
         return movieId;
     }
+
 }

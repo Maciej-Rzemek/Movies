@@ -1,5 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.CardView
+
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="2dp"
+        app:cardUseCompatPadding="true">
+
+        <ImageView
+            android:id="@+id/movie_poster"
+            android:layout_width="match_parent"
+            android:layout_height="280dp"
+            android:background="@color/colorPrimary"
+            android:scaleType="centerCrop" />
+
+        <LinearLayout
+            android:id="@+id/posterInfo"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_gravity="bottom"
+            android:background="@color/poster_text_background"
+            android:orientation="vertical"
+            android:paddingBottom="5dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingTop="5dp">
+
+            <TextView
+                android:id="@+id/movie_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="sans-serif-light"
+                android:maxLines="1"
+                android:shadowColor="@android:color/black"
+                android:shadowDx="1.5"
+                android:shadowDy="1.3"
+                android:shadowRadius="1.6"
+                android:textColor="@android:color/white"
+                android:textSize="20dp"
+                tools:text="Title: The Movie Title" />
+
+            <TextView
+                android:id="@+id/movie_list_rank"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:fontFamily="sans-serif-light"
+                android:textColor="@color/colorAccent"
+                android:textSize="15dp"
+                tools:text="Average Vote: 6.5/10" />
+        </LinearLayout>
+
+    </android.support.v7.widget.CardView>
+
+</FrameLayout>
+
+
+
+
+
+
+
+
+
+<!--<android.support.v7.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -69,4 +140,4 @@
             app:layout_constraintStart_toEndOf="@+id/movie_rating" />
 
     </android.support.constraint.ConstraintLayout>
-</android.support.v7.widget.CardView>
+</android.support.v7.widget.CardView>-->

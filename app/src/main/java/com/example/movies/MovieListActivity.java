@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
@@ -32,6 +33,7 @@ public class MovieListActivity extends BaseActivity implements OnMovieListener {
     private MovieListViewModel mMovieListViewModel;
     private String sortBy = MovieRepository.POPULAR;
     private RecyclerView mRecyclerView;
+    private GridLayoutManager mGridLayoutManager;
     private MoviesRecyclerAdapter mAdapter;
     private int currentPage;
 
@@ -43,7 +45,6 @@ public class MovieListActivity extends BaseActivity implements OnMovieListener {
         mRecyclerView = findViewById(R.id.movie_list);
 
         mMovieListViewModel = ViewModelProviders.of(this).get(MovieListViewModel.class);
-
         setSupportActionBar((Toolbar)findViewById(R.id.toolbar));
 
         initRecyclerView();
@@ -52,9 +53,11 @@ public class MovieListActivity extends BaseActivity implements OnMovieListener {
     }
 
     private void initRecyclerView() {
+        mGridLayoutManager = new GridLayoutManager(MovieListActivity.this, 2);
         mAdapter = new MoviesRecyclerAdapter(this);
+
         mRecyclerView.setAdapter(mAdapter);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mRecyclerView.setLayoutManager(mGridLayoutManager);
 
         mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
